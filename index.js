@@ -1,7 +1,6 @@
 // Require all the packages
 require('dotenv').config()
 const client = require('twitter-api-client');
-const axios = require('axios');
 const fs = require('fs');
 const jimp = require('jimp');
 
@@ -14,14 +13,7 @@ const twitterClient = new client.TwitterClient({
   accessTokenSecret: process.env.CONSUMER_SECRET    //YOUR CONSUMER SECRET
 });
 
-// Test the twitter-api-client
-// async function test() {
-//   const data = await twitterClient.accountsAndUsers.followersList({ screen_name: 'Deveshb15', count: 3 });
 
-//   console.log(data.users)
-// }
-
-// test()
 
 //push the url of profile image recent followers
 let image_url = [];
@@ -29,20 +21,6 @@ let image_url = [];
 //check below drawit()
 let lastDrawImage = 0;
 
-//function to download image
-const download_image = (url, image_path) =>
-axios({
-  url,
-  responseType: 'stream',
-}).then(
-  response =>
-    new Promise((resolve, reject) => {
-      response.data
-        .pipe(fs.createWriteStream(image_path))
-        .on('finish', () => resolve())
-        .on('error', e => reject(e));
-    }),
-);
 
   // function to draw image and post it
   async function drawImage(back, img1, img2, img3){
@@ -80,7 +58,6 @@ axios({
 
 async function start() {
 
-  const name = Math.random();
   const params = {
     screen_name: TWITTER_HANDLE, //name of twitter account
     count: 3                     //number of followers to be fetched
@@ -94,25 +71,11 @@ async function start() {
   });
   
   (async () => {
-    //download the image
-    await download_image(image_url[0], `${name}-1.png`)
-    await download_image(image_url[1], `${name}-2.png`)
-    await download_image(image_url[2], `${name}-3.png`)
-
+  
   async function drawit() {
     lastDrawImage = Date.now();
     // Draw the image and Post it
-    await drawImage('1500x500.png' ,`${name}-1.png`,`${name}-2.png`,`${name}-3.png`);
-  }
-  async function deleteImages() {
-    try{
-      console.log('removing', `${name}{1,2,3}.png`);
-      await fs.unlinkSync(`${name}-1.png`);
-      await fs.unlinkSync(`${name}-2.png`);
-      await fs.unlinkSync(`${name}-3.png`);
-    }catch(e){
-      console.log(e);
-    }
+    await drawImage('1500x500.png' ,image_url[0],image_url[1],image_url[2]);
   }
   const remaining = Date.now() - lastDrawImage;
   
@@ -121,7 +84,7 @@ async function start() {
   if (remaining > 30000) {
     await drawit();
   }
-  await deleteImages();
+
 
 })();
 
